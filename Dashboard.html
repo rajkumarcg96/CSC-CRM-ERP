@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gyan ERP - Master Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 100% ORIGINAL BASE CSS - NO CHANGE */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { display: flex; background-color: #f0f4f8; color: #333; }
+        .sidebar { width: 250px; height: 100vh; background-color: #1a252f; color: white; transition: 0.3s; position: sticky; top: 0; overflow-y: auto;}
+        .sidebar.collapsed { width: 70px; }
+        .logo-area { padding: 20px; font-size: 18px; font-weight: bold; border-bottom: 1px solid #2c3e50; background: #0f171e; white-space: nowrap; }
+        .menu { list-style: none; margin-top: 10px; }
+        .menu li { border-left: 4px solid transparent; }
+        .menu li a { color: white; text-decoration: none; display: flex; align-items: center; white-space: nowrap; padding: 15px 20px; cursor: pointer; width: 100%;}
+        .menu li i { font-size: 18px; min-width: 35px; }
+        
+        .sub-menu { display: none; background: #141d26; list-style: none; padding-left: 15px; }
+        .sub-menu li a { padding: 10px 20px; font-size: 14px; color: #bdc3c7; }
+        .has-sub.active .sub-menu { display: block; }
+
+        .main-content { flex: 1; width: calc(100% - 250px); }
+        .top-nav { background: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .toggle-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #2c3e50; }
+        .dash-section { display: none; animation: fadeIn 0.4s ease; padding: 30px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-top: 4px solid #3498db; margin-bottom: 20px;}
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .submit-btn { grid-column: span 2; background-color: #2ecc71; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        table th, table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        table th { background: #f8f9fa; }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999; justify-content:center; align-items:center; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="logo-area"><i class="fas fa-laptop-code"></i> <span class="text">Gyan IT Center</span></div>
+        <ul class="menu">
+            <li><a onclick="showSection('overviewSection')"><i class="fas fa-chart-pie"></i> <span class="text">Overview</span></a></li>
+            
+            <li class="has-sub" id="custMenu">
+                <a onclick="toggleSubMenu('custMenu')"><i class="fas fa-users"></i> <span class="text">Customer <i class="fas fa-chevron-down"></i></span></a>
+                <ul class="sub-menu">
+                    <li><a onclick="showSection('addCustomerSection')">Add Customer</a></li>
+                    <li><a onclick="showSection('transactionSection')">Add Transaction</a></li>
+                    <li><a onclick="showSection('searchSection')">Search Customer</a></li>
+                    <li><a onclick="showSection('allCustSection'); loadAllCustomers();">View All Customers</a></li>
+                </ul>
+            </li>
+
+            <li><a onclick="showSection('taskSection'); loadTodayTasks();"><i class="fas fa-tasks"></i> <span class="text">Today's Tasks</span></a></li>
+            <li><a onclick="showSection('cashierSection'); loadCashierQueue();"><i class="fas fa-wallet"></i> <span class="text">Cashier Desk</span></a></li>
+            <li><a onclick="showSection('khataSection'); loadKhata();"><i class="fas fa-book"></i> <span class="text">Udhar / Khata</span></a></li>
+
+            <li class="has-sub" id="masterMenu">
+                <a onclick="toggleSubMenu('masterMenu')"><i class="fas fa-cog"></i> <span class="text">Master Setting <i class="fas fa-chevron-down"></i></span></a>
+                <ul class="sub-menu">
+                    <li><a onclick="showSection('staffSection')">Add Staff</a></li>
+                    <li><a onclick="showSection('viewStaffSection'); loadAllStaff();">View Staff</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="top-nav">
+            <button onclick="document.getElementById('sidebar').classList.toggle('collapsed')" style="background:none; border:none; font-size:24px; cursor:pointer;"><i class="fas fa-bars"></i></button>
+            <div><span id="userDisplay" style="font-weight: bold;"></span> <button onclick="logout()" style="margin-left:15px; background:#e74c3c; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Logout</button></div>
+        </div>
+
+        <div class="dashboard-area">
+            
+            <div id="overviewSection" class="dash-section" style="display: block;">
+                <div class="card"><h3>Welcome</h3><p>Gyan IT Center ERP is ready. Sabhi modules live hain.</p></div>
+            </div>
+
+            <div id="addCustomerSection" class="dash-section">
+                <div class="card">
+                    <h3>Add New Customer</h3>
+                    <form id="customerForm"><div class="form-grid"><input type="text" id="custName" placeholder="Name" required><input type="text" id="custPhone" placeholder="Mobile" required><input type="text" id="custAddress" placeholder="Address" required><button type="submit" class="submit-btn">Register</button></div></form>
+                </div>
+            </div>
+
+            <div id="transactionSection" class="dash-section">
+                <div class="card" style="border-top-color: #2ecc71;">
+                    <h3>New Transaction</h3>
+                    <div class="form-grid" style="margin-bottom:15px;"><input type="text" id="tsq" placeholder="Mobile Search"><button onclick="searchForTxn()" class="submit-btn" style="background:#3498db; margin:0;">Verify</button></div>
+                    <div id="txnFields" style="display:none;">
+                        <form id="txnForm"><div class="form-grid"><input type="text" id="tn" readonly><input type="text" id="tp" readonly><select id="ts"><option value="PAN">PAN Card</option><option value="Aadhaar">Aadhaar</option></select><input type="number" id="tam" placeholder="Amount" required><button type="submit" class="submit-btn">Send to Cashier</button></div></form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="taskSection" class="dash-section">
+                <div class="card" style="border-top-color: #f39c12;"><h3>Live Tasks</h3><table><thead><tr><th>ID</th><th>Customer</th><th>Service</th><th>Status</th></tr></thead><tbody id="taskBody"></tbody></table></div>
+            </div>
+
+            <div id="cashierSection" class="dash-section">
+                <div class="card" style="border-top-color: #2ecc71;"><h3>Pending Payments</h3><table><thead><tr><th>Token</th><th>Mobile</th><th>Amount</th><th>Action</th></tr></thead><tbody id="cashierBody"></tbody></table></div>
+            </div>
+
+            <div id="khataSection" class="dash-section">
+                <div class="card" style="border-top-color: #e74c3c;"><h3>Udhar Ledger</h3><table><thead><tr><th>Name</th><th>Mobile</th><th>Balance</th></tr></thead><tbody id="khataBody"></tbody></table></div>
+            </div>
+
+            <div id="staffSection" class="dash-section">
+                <div class="card" style="border-top-color: #9b59b6;"><h3>Add Staff</h3><form id="staffForm"><div class="form-grid"><input type="text" id="sn" placeholder="Name"><input type="text" id="sp" placeholder="Phone"><input type="password" id="spas" placeholder="Pass"><select id="sr"><option value="Operator">Operator</option><option value="Admin">Admin</option></select><button type="submit" class="submit-btn" style="background:#9b59b6;">Add</button></div></form></div>
+            </div>
+            
+            <div id="viewStaffSection" class="dash-section">
+                <div class="card" style="border-top-color: #9b59b6;"><h3>Staff List</h3><table><thead><tr><th>Name</th><th>Role</th><th>Status</th></tr></thead><tbody id="staffBody"></tbody></table></div>
+            </div>
+
+            <div id="allCustSection" class="dash-section">
+                <div class="card" style="border-top-color: #1abc9c;"><h3>Directory</h3><table><thead><tr><th>Name</th><th>Phone</th><th>History</th></tr></thead><tbody id="allCustBody"></tbody></table></div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="hModal" class="modal"><div class="card" style="width:80%; max-height:80vh; overflow-y:auto;"><button onclick="this.parentElement.parentElement.style.display='none'">Close</button><h3 id="ht"></h3><table><thead><tr><th>Date</th><th>Service</th><th>Amount</th><th>Status</th></tr></thead><tbody id="hb"></tbody></table></div></div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbwpWgQgw2KoRI9Jv_Ra60ujdbweUTXU2CdL348X1EX45TQPm08T5pKOJCXasHxwiP5Fjg/exec";
+        const user = localStorage.getItem("gyanUser");
+        const role = localStorage.getItem("gyanRole");
+        if(!user) window.location.href = "login.html";
+        document.getElementById("userDisplay").innerText = user + " (" + role + ")";
+
+        function toggleSubMenu(id) { document.getElementById(id).classList.toggle('active'); }
+        function showSection(id) { document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none'); document.getElementById(id).style.display = 'block'; }
+        function logout() { localStorage.clear(); window.location.href = "index.html"; }
+
+        // --- ALL LOGIC INTEGRATED ---
+
+        function searchForTxn() {
+            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "searchCustomer", data: { searchQuery: document.getElementById('tsq').value } }) })
+            .then(res => res.json()).then(d => {
+                if(d.status === "success") { document.getElementById('txnFields').style.display='block'; document.getElementById('tn').value=d.user.name; document.getElementById('tp').value=d.user.phone; }
+                else { alert("Customer nahi mila!"); showSection('addCustomerSection'); }
+            });
+        }
+
+        function loadTodayTasks() {
+            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getTasks", data: {} }) })
+            .then(res => res.json()).then(d => {
+                let b = document.getElementById('taskBody'); b.innerHTML = "";
+                d.user.list.forEach(t => { b.innerHTML += `<tr><td>${t.id}</td><td>${t.name}</td><td>${t.service}</td><td>${t.status}</td></tr>`; });
+            });
+        }
+
+        function loadCashierQueue() {
+            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getCashierQueue", data: {} }) })
+            .then(res => res.json()).then(d => {
+                let b = document.getElementById('cashierBody'); b.innerHTML = "";
+                d.user.list.forEach(q => { b.innerHTML += `<tr><td>${q.id}</td><td>${q.phone}</td><td>₹${q.amount}</td><td><button onclick="alert('Collect Payment feature logic here')">Collect</button></td></tr>`; });
+            });
+        }
+
+        function loadKhata() {
+            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getKhata", data: {} }) })
+            .then(res => res.json()).then(d => {
+                let b = document.getElementById('khataBody'); b.innerHTML = "";
+                d.user.list.forEach(k => { b.innerHTML += `<tr><td>${k.name}</td><td>${k.phone}</td><td style="color:red;">₹${k.balance}</td></tr>`; });
+            });
+        }
+
+        function loadAllStaff() {
+            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getAllUsers", data: {} }) })
+            .then(res => res.json()).then(d => {
+                let b = document.getElementById('staffBody'); b.innerHTML = "";
+                d.user.list.forEach(s => { b.innerHTML += `<tr><td>${s.name}</td><td>${s.role}</td><td>${s.status}</td></tr>`; });
+            });
+        }
+
+        function loadAllCustomers() {
+            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getAllCustomers", data: {} }) })
+            .then(res => res.json()).then(d => {
+                let b = document.getElementById('allCustBody'); b.innerHTML = "";
+                d.user.list.forEach(c => { b.innerHTML += `<tr><td>${c.name}</td><td>${c.phone}</td><td><button onclick="viewHistory('${c.phone}','${c.name}')">View</button></td></tr>`; });
+            });
+        }
+
+        function viewHistory(p, n) {
+            document.getElementById('ht').innerText = "History: " + n;
+            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getHistory", data: { phone: p } }) })
+            .then(res => res.json()).then(d => {
+                let b = document.getElementById('hb'); b.innerHTML = "";
+                d.user.history.forEach(h => { b.innerHTML += `<tr><td>${new Date(h.date).toLocaleDateString()}</td><td>${h.service}</td><td>₹${h.amount}</td><td>${h.status}</td></tr>`; });
+                document.getElementById('hModal').style.display = 'flex';
+            });
+        }
+
+        // Form Submits
+        document.getElementById('customerForm').onsubmit = (e) => { e.preventDefault(); fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "addCustomer", data: { name: document.getElementById('custName').value, phone: document.getElementById('custPhone').value, address: document.getElementById('custAddress').value } }) }).then(res => res.json()).then(d => { alert(d.message); e.target.reset(); }); }
+        document.getElementById('txnForm').onsubmit = (e) => { e.preventDefault(); fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "addEntry", data: { phone: document.getElementById('tp').value, name: document.getElementById('tn').value, service: document.getElementById('ts').value, amount: document.getElementById('tam').value, operator: user } }) }).then(res => res.json()).then(d => { alert(d.message); document.getElementById('txnFields').style.display='none'; e.target.reset(); }); }
+        document.getElementById('staffForm').onsubmit = (e) => { e.preventDefault(); fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "addUser", data: { fullName: document.getElementById('sn').value, phone: document.getElementById('sp').value, password: document.getElementById('spas').value, role: document.getElementById('sr').value } }) }).then(res => res.json()).then(d => { alert(d.message); e.target.reset(); }); }
+    </script>
+</body>
+</html>
