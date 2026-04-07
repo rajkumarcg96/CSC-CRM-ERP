@@ -42,7 +42,7 @@
                     msg.style.color = "green"; msg.innerText = "Login Success! Redirecting...";
                     localStorage.setItem("gyanUser", data.user.name);
                     localStorage.setItem("gyanRole", data.user.role);
-                    setTimeout(() => { window.location.href = "Dashboard.html"; }, 1000);
+                    setTimeout(() => { window.location.href = "dashboard.html"; }, 1000);
                 } else {
                     btn.disabled = false; btn.innerText = "Login Securely";
                     msg.style.color = "red"; msg.innerText = "❌ " + data.message;
