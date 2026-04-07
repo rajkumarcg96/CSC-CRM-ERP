@@ -2,64 +2,223 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Gyan ERP - Master Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            background: rgba(255, 255, 255, 0.1);
+        /* 100% ORIGINAL BASE CSS + MODERN ENHANCEMENTS */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        
+        /* Dark Mode Support */
+        body { display: flex; background-color: #f0f4f8; color: #333; transition: 0.3s; }
+        body.dark-mode { background-color: #121212; color: #e0e0e0; }
+        body.dark-mode .top-nav { background: #1e1e1e; color: #fff; }
+        body.dark-mode .card { background: #2a2a2a; color: #e0e0e0; }
+        body.dark-mode .sidebar { background-color: #0a0e14; }
+        
+        /* Glass-morphism Effects */
+        .glass-effect {
             backdrop-filter: blur(10px);
-            color: #ffffff;
-        }
-        .toggle-dark-mode {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            cursor: pointer;
-            background: rgba(0, 0, 0, 0.6);
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .card {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
-            margin: 15px;
-            padding: 20px;
-            transition: transform 0.3s;
         }
-        .card:hover {
-            transform: scale(1.05);
-        }
-        /* Additional styles for dashboard elements */
+        
+        /* Smooth Animations */
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .notification-panel { animation: slideInRight 0.3s ease; }
+        .quick-actions .card { animation: fadeInUp 0.3s ease; }
+        
+        /* Original CSS */
+        .sidebar { width: 250px; height: 100vh; background-color: #1a252f; color: white; transition: 0.3s; position: sticky; top: 0; overflow-y: auto;}
+        .sidebar.collapsed { width: 70px; }
+        .logo-area { padding: 20px; font-size: 18px; font-weight: bold; border-bottom: 1px solid #2c3e50; background: #0f171e; white-space: nowrap; }
+        .menu { list-style: none; margin-top: 10px; }
+        .menu li { border-left: 4px solid transparent; }
+        .menu li a { color: white; text-decoration: none; display: flex; align-items: center; white-space: nowrap; padding: 15px 20px; cursor: pointer; width: 100%;}
+        .menu li i { font-size: 18px; min-width: 35px; }
+        .sub-menu { display: none; background: #141d26; list-style: none; padding-left: 15px; }
+        .sub-menu li a { padding: 10px 20px; font-size: 14px; color: #bdc3c7; }
+        .has-sub.active .sub-menu { display: block; }
+        .main-content { flex: 1; width: calc(100% - 250px); }
+        .top-nav { background: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .toggle-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #2c3e50; }
+        .dash-section { display: none; animation: fadeIn 0.4s ease; padding: 30px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-top: 4px solid #3498db; margin-bottom: 20px;}
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .submit-btn { grid-column: span 2; background-color: #2ecc71; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        table th, table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        table th { background: #f8f9fa; }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999; justify-content:center; align-items:center; overflow-y:auto; }
+        .denom-box { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; background: #f9f9f9; padding: 5px 10px; border-radius: 4px;}
+        .denom-box input { width: 60px; padding: 5px; border:1px solid #ccc; border-radius:3px; }
+        .stat-card { padding: 20px; border-radius: 8px; color: white; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .stat-card h3 { font-size: 16px; margin-bottom: 10px; opacity: 0.9; }
+        .stat-card h2 { font-size: 28px; }
+        .id-print-area { width: 2.12in; height: 3.37in; background: white; border: 1px solid #ccc; box-shadow: 0 0 5px rgba(0,0,0,0.2); position: relative; margin: 0 auto; overflow: hidden; }
+        .id-header { background: #2c3e50; color: white; text-align: center; padding: 8px 0; font-size: 14px; font-weight: bold; margin-bottom: 15px; }
+        .id-photo-container { width: 70px; height: 70px; margin: 0 auto; border-radius: 50%; border: 2px solid #3498db; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        .id-photo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .id-details { text-align: center; margin-top: 10px; padding: 0 10px; }
+        .id-qr { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 50px; height: 50px; }
+        .staff-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #ccc; vertical-align: middle; margin-right: 10px;}
+        .action-btn { background:#3498db; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; }
+        .edit-btn { background:#f39c12; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; margin-left:5px; }
+        
+        /* New Modern Features */
+        .top-nav-right { display: flex; gap: 15px; align-items: center; }
+        .clock { font-size: 14px; font-weight: bold; min-width: 150px; }
+        .dark-mode-toggle { background: #3498db; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .notification-icon { position: relative; cursor: pointer; font-size: 20px; }
+        .notification-count { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; padding: 0 30px; }
+        .quick-action-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; cursor: pointer; transition: transform 0.3s; }
+        .quick-action-card:hover { transform: translateY(-5px); }
     </style>
 </head>
 <body>
-    <button class="toggle-dark-mode">Toggle Dark Mode</button>
-    <div class="dashboard">
-        <h1>Dashboard</h1>
-        <div class="analytics-widgets">
-            <!-- Advanced analytics widgets with charts -->
-        </div>
-        <div class="quick-action-cards">
-            <!-- Quick action cards for tasks -->
-        </div>
-        <div class="notification-panel">
-            <!-- Notification panel with alerts -->
-        </div>
-        <div class="real-time-clock">
-            <!-- Real-time clock display -->
-        </div>
-        <div class="performance-metrics">
-            <!-- Performance metrics section -->
-        </div>
-        <input type="search" placeholder="Search..." />
-        <script>
-            // JavaScript for toggling dark mode, lazy loading, improved search with filters
-            document.querySelector('.toggle-dark-mode').onclick = function() {
-                document.body.classList.toggle('dark-mode');
-            };
-        </script>
+    <div class="sidebar" id="sidebar">
+        <div class="logo-area"><i class="fas fa-laptop-code"></i> <span class="text">Gyan IT Center</span></div>
+        <ul class="menu">
+            <li><a onclick="showSection('overviewSection')"><i class="fas fa-chart-pie"></i> <span class="text">Dashboard</span></a></li>
+            <li class="has-sub" id="custMenu"><a onclick="toggleSubMenu('custMenu')"><i class="fas fa-users"></i> <span class="text">Customer</span></a><ul class="sub-menu"><li><a onclick="showSection('addCustomerSection')">Add Customer</a></li><li><a onclick="showSection('allCustSection')">View All</a></li></ul></li>
+            <li class="has-sub" id="groupMenu"><a onclick="toggleSubMenu('groupMenu')"><i class="fas fa-users-cog"></i> <span class="text">Groups</span></a><ul class="sub-menu"><li><a onclick="showSection('addGroupSection')">Manage Groups</a></li></ul></li>
+            <li class="has-sub" id="bankingMenu"><a onclick="toggleSubMenu('bankingMenu')"><i class="fas fa-exchange-alt"></i> <span class="text">Banking/DMT</span></a><ul class="sub-menu"><li><a onclick="showSection('addBankingSection')">Add Transfer</a></li><li><a onclick="showSection('bankingHistorySection')">History</a></li></ul></li>
+            <li class="has-sub" id="serviceMenu"><a onclick="toggleSubMenu('serviceMenu')"><i class="fas fa-box"></i> <span class="text">Services</span></a><ul class="sub-menu"><li><a onclick="showSection('allServicesSection')">View Services</a></li></ul></li>
+            <li><a onclick="showSection('taskSection'); loadTodayTasks(false);"><i class="fas fa-tasks"></i> <span class="text">Today's Tasks</span></a></li>
+            <li id="menuCashier"><a onclick="showSection('cashierSection'); loadCashierQueue();"><i class="fas fa-wallet"></i> <span class="text">Cashier Desk</span></a></li>
+            <li id="menuKhata"><a onclick="showSection('khataSection'); loadKhata();"><i class="fas fa-book"></i> <span class="text">Udhar / Khata</span></a></li>
+            <li class="has-sub" id="reportMenu"><a onclick="toggleSubMenu('reportMenu')"><i class="fas fa-chart-line"></i> <span class="text">Reports</span></a><ul class="sub-menu"><li><a onclick="showSection('todayReportSection')">Today</a></li><li><a onclick="showSection('serviceReportSection')">Services</a></li><li><a onclick="showSection('customerReportSection')">Customers</a></li></ul></li>
+            <li class="has-sub" id="masterMenu"><a onclick="toggleSubMenu('masterMenu')"><i class="fas fa-cog"></i> <span class="text">Master Setting</span></a><ul class="sub-menu"><li><a onclick="showSection('staffSection')">Add Staff</a></li><li><a onclick="showSection('viewStaffSection')">Manage Staff</a></li></ul></li>
+        </ul>
     </div>
+
+    <div class="main-content">
+        <div class="top-nav">
+            <button onclick="toggleSidebar()" class="toggle-btn"><i class="fas fa-bars"></i></button>
+            <div class="top-nav-right">
+                <div class="clock" id="realTimeClock">00:00:00</div>
+                <button class="dark-mode-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon"></i> Dark Mode</button>
+                <div class="notification-icon" onclick="toggleNotificationPanel()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count" id="notificationCount">0</span>
+                </div>
+                <span id="userDisplay" style="font-weight: bold;"></span>
+                <button onclick="logout()" style="background:#e74c3c; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">Logout</button>
+            </div>
+        </div>
+
+        <div class="dashboard-area">
+            <!-- Quick Action Cards -->
+            <div class="quick-actions" id="quickActions" style="display: grid;">
+                <div class="quick-action-card" onclick="showSection('addCustomerSection')"><i class="fas fa-user-plus"></i> Add Customer</div>
+                <div class="quick-action-card" onclick="showSection('transactionSection')"><i class="fas fa-exchange-alt"></i> New Transaction</div>
+                <div class="quick-action-card" onclick="showSection('todayReportSection')"><i class="fas fa-file-pdf"></i> View Reports</div>
+                <div class="quick-action-card" onclick="showSection('taskSection')"><i class="fas fa-tasks"></i> Today Tasks</div>
+            </div>
+
+            <!-- Original Dashboard Sections -->
+            <div id="overviewSection" class="dash-section" style="display: block;">
+                <div class="card" style="border-top-color: #34495e;">
+                    <h3>Welcome <span id="welcomeName">User</span></h3>
+                    <p id="roleDesc" style="color:#7f8c8d; margin-bottom: 20px;"></p>
+                    <div id="adminStatsGrid" class="form-grid" style="display:none; grid-template-columns: 1fr 1fr 1fr 1fr; margin-bottom:20px;"></div>
+                    <div id="cashierStatsGrid" class="form-grid" style="display:none; grid-template-columns: 1fr 1fr; margin-bottom:20px;"></div>
+                    <div id="dashTaskDiv" style="display:none; border-top: 1px solid #eee; padding-top:15px;"></div>
+                    <div id="dashCashierDiv" style="display:none; border-top: 1px solid #eee; padding-top:15px;"></div>
+                </div>
+            </div>
+
+            <!-- All Other Sections (Placeholder) -->
+            <div id="walletSection" class="dash-section"><div class="card"><h3>Digital Wallets</h3><p>Wallet Management Section</p></div></div>
+            <div id="addBankingSection" class="dash-section"><div class="card"><h3>Banking/DMT</h3><p>Add Transfer Section</p></div></div>
+            <div id="bankingHistorySection" class="dash-section"><div class="card"><h3>Banking History</h3><p>History Section</p></div></div>
+            <div id="addGroupSection" class="dash-section"><div class="card"><h3>Manage Groups</h3><p>Groups Management</p></div></div>
+            <div id="addCustomerSection" class="dash-section"><div class="card"><h3>Register Customer</h3><p>Customer Registration</p></div></div>
+            <div id="searchSection" class="dash-section"><div class="card"><h3>Search Customer</h3><p>Advanced Search</p></div></div>
+            <div id="allCustSection" class="dash-section"><div class="card"><h3>All Customers</h3><p>Customer Directory</p></div></div>
+            <div id="transactionSection" class="dash-section"><div class="card"><h3>New Transaction</h3><p>Transaction Section</p></div></div>
+            <div id="allServicesSection" class="dash-section"><div class="card"><h3>Services</h3><p>Services List</p></div></div>
+            <div id="taskSection" class="dash-section"><div class="card"><h3>Tasks</h3><p>Today's Tasks</p></div></div>
+            <div id="cashierSection" class="dash-section"><div class="card"><h3>Cashier Queue</h3><p>Cashier Desk</p></div></div>
+            <div id="khataSection" class="dash-section"><div class="card"><h3>Udhar Ledger</h3><p>Khata Management</p></div></div>
+            <div id="staffSection" class="dash-section"><div class="card"><h3>Add Staff</h3><p>Staff Registration</p></div></div>
+            <div id="viewStaffSection" class="dash-section"><div class="card"><h3>Staff Management</h3><p>Manage Staff</p></div></div>
+            <div id="todayReportSection" class="dash-section"><div class="card"><h3>Today Report</h3><p>Daily Report</p></div></div>
+            <div id="serviceReportSection" class="dash-section"><div class="card"><h3>Service Report</h3><p>Services Report</p></div></div>
+            <div id="customerReportSection" class="dash-section"><div class="card"><h3>Customer Report</h3><p>Customers Report</p></div></div>
+            <div id="groupReportSection" class="dash-section"><div class="card"><h3>Group Report</h3><p>Groups Report</p></div></div>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ API URL AUR UPI ID ⚠️
+        const API_URL = "https://script.google.com/macros/s/AKfycbyhfNb1GCKUGX8tacDlZPqQdI-iB7vRSfiStRbVWjySFOvWzxkw_yQn7YIU7SQYaaOxLA/exec"; 
+        const UPI_ID = "globalit7@ybl"; 
+        
+        const user = localStorage.getItem("gyanUser") || "Admin";
+        const role = localStorage.getItem("gyanRole") || "Operator";
+        
+        document.getElementById("userDisplay").innerText = "👤 " + user + " (" + role + ")";
+        document.getElementById("welcomeName").innerText = user;
+        document.getElementById("roleDesc").innerText = "Role: " + role;
+
+        // Core Functions
+        function showSection(id) { 
+            document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none'); 
+            document.getElementById(id).style.display = 'block'; 
+        }
+        function toggleSubMenu(id) { 
+            document.getElementById(id).classList.toggle('active'); 
+        }
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+        function logout() { 
+            localStorage.clear(); 
+            window.location.href = "login.html"; 
+        }
+
+        // Modern Feature Functions
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('realTimeClock').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        function toggleNotificationPanel() {
+            alert('Notifications: 0 pending');
+        }
+
+        function loadTodayTasks(isDash = false) {
+            console.log("Loading today's tasks...");
+        }
+
+        // Load saved theme
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+        });
+
+        // Placeholder functions for original features
+        function fetchServices() { console.log("Services loaded"); }
+        function fetchGroups() { console.log("Groups loaded"); }
+        function loadAdminDashboard() { console.log("Admin dashboard loaded"); }
+        function loadKhata() { console.log("Khata loaded"); }
+    </script>
 </body>
 </html>
